@@ -1,0 +1,10 @@
+
+May 31, 2018
+
+create:
+
+* create-views.lua
+* update-views.lua
+
+base the above scripts on the perl version used in my scaup, veery, and warbler apps.
+

@@ -1,0 +1,21 @@
+
+    site_name:                      Nuthatch Test Site
+    site_description:               Static Site Generator Built with Lua
+    home_page:                      http://example.com
+    domain_name:                    example.com
+    app_name:                       Nuthatch 1.0
+    template_home:                  /home/nuthatch/Nuthatch/tmpl
+    cookie_prefix:                  nuthatch
+    css_dir_url:                    /css 
+    maincss_url:                    http://example.com/css/nuthatch.css
+    default_doc_root:               /home/nuthatch/docroot
+    debug_mode:                     true
+    api_url:                        http://example.com/api/v1
+
+    author_name:                    Nick Adams
+    mailgun_api_key:                <api-key>
+    mailgun_domain:                 <domain name>
+    mailgun_from:                   Nuthatch <postmaster@example.com>
+    markup_storage:                 /home/nuthatch/markup
+    max_entries:                    40
+    database_name:                  <couchdb-db-name>
