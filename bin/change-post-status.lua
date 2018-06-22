@@ -8,8 +8,11 @@ local cjson =  require "cjson"
 
 
 local session_filename = arg[1]
-if ( session_filename == nil ) then
-    error("command line arg 'session-filename' missing. usage: " .. arg[0] .. " session-filename")
+local action = arg[2]
+local post_id = arg[3]
+
+if ( session_filename == nil or action == nil or post_id == nil ) then
+    error("one or more args missing. usage: " .. arg[0] .. " SessionFilename Action PostID")
 end 
 
 
@@ -36,7 +39,11 @@ local api_url = "http://nuthatch.soupmode.com/api/v1"
 
 
 -- don't need to send rev though.
-local full_url = api_url .. "/users/logout?author=" .. value.author_name .. "&session_id=" .. value.session_id .. "&rev=" .. value.rev
+local full_url = api_url .. "/posts/" .. post_id .. "?action=" .. action .. "&author=" .. value.author_name .. "&session_id=" .. value.session_id .. "&rev=" .. value.rev
+
+
+print(full_url)
+
 
 local response_body = {}
 
@@ -59,6 +66,8 @@ response_body = table.concat(response_body)
 
 print(response_body)
 
+
+--[[
 local value = cjson.decode(response_body)
 
 for k,v in pairs(value) do
@@ -72,3 +81,4 @@ for k,v in pairs(value) do
     end
 end
 
+]]

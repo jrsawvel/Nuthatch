@@ -6,7 +6,7 @@ local http  = require "socket.http"
 local cjson   = require "cjson"
 
 
-local url = 'http://127.0.0.1:5984/scaupdvlp1/_design/views/_view/stream/?descending=true&limit=16'
+local url = 'http://127.0.0.1:5984/veerydvlp1/_design/views/_view/stream/?descending=true&limit=16'
 
 local response = {}
 local num, status_code, headers, status_string = http.request {

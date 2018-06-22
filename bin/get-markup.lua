@@ -15,7 +15,7 @@ end
 
 local api_url = "http://nuthatch.soupmode.com/api/v1"
 
-local full_url = api_url .. "/posts/" .. slug
+local full_url = api_url .. "/posts/" .. slug .. "?text=markup"
 
 local response_body = {}
 

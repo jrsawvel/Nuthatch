@@ -7,7 +7,7 @@ local luchia  = require "luchia"
 local cjson   = require "cjson"
 
 
-local doc = luchia.document:new("scaupdvlp1")
+local doc = luchia.document:new("veerydvlp1")
 
 local response = doc:retrieve("info")
 
@@ -18,4 +18,6 @@ else
     print(json_text)
 end
 
+
+print("\n\n" .. response.post_status)
 

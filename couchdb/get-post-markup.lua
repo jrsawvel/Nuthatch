@@ -7,7 +7,7 @@ local http  = require "socket.http"
 local cjson   = require "cjson"
 
 
-local url = 'http://127.0.0.1:5984/scaupdvlp1/_design/views/_view/post_markup?key="info"'
+local url = 'http://127.0.0.1:5984/veerydvlp1/_design/views/_view/post_markup?key="info"'
 
 local response = {}
 local num, status_code, headers, status_string = http.request {

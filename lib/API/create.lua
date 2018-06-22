@@ -9,7 +9,7 @@ local cjson   = require "cjson"
 local rex     = require "rex_pcre"
 
 
-local session = require "session"
+local auth    = require "auth"
 local utils   = require "utils"
 local rj      = require "returnjson"
 local title   = require "title"
@@ -28,7 +28,7 @@ function M.create_post()
     local session_id            = hash.session_id
     local rev                   = hash.rev
    
-    if session.is_valid_login(logged_in_author_name, session_id, rev) == false then 
+    if auth.is_valid_login(logged_in_author_name, session_id, rev) == false then 
         rj.report_error("400", "Unable to peform action.", "You are not logged in.")
     else
         local submit_type = hash.submit_type

@@ -6,7 +6,7 @@ local cgilua  = require "cgilua"
 local urlcode = require "cgilua.urlcode"
 local rex     = require "rex_pcre"
 
-local session = require "session"
+local auth    = require "auth"
 local config  = require "config"
 local utils   = require "utils"
 local rj      = require "returnjson"
@@ -18,7 +18,7 @@ function M.searches(a_params)
     local session_id  = cgilua.QUERY.session_id
     local rev         = cgilua.QUERY.rev
 
-    if session.is_valid_login(author_name, session_id, rev) == false then 
+    if auth.is_valid_login(author_name, session_id, rev) == false then 
         rj.report_error("400", "Unable to peform action.", "You are not logged in.")
     else
         local posts = {}

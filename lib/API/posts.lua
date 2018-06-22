@@ -9,6 +9,7 @@ local rj     = require "returnjson"
 local create = require "create"
 local read   = require "read"
 local update = require "update"
+local poststatus = require "poststatus"
 
 
 function M.posts(a_params)
@@ -18,18 +19,11 @@ function M.posts(a_params)
     if request_method == "POST" then
         create.create_post()
     elseif request_method == "GET" then
-        local post_id = ""
-        if #a_params > 2 then
-            for i=2, #a_params do
-                post_id = post_id .. a_params[i]
-                if i < #a_params then
-                    post_id = post_id .. "/"
-                end
-            end    
+        if cgilua.QUERY.action ~= nil and ( cgilua.QUERY.action == "delete" or cgilua.QUERY.action == "undelete" )  then
+            poststatus.change_post_status(cgilua.QUERY.action, a_params[2])
         else
-            post_id = a_params[2]   -- in this app, id = the slug or post uri 
+            read.get_post(a_params[2]) -- in this app, id = the slug or post uri 
         end
-        read.get_post(post_id)
     elseif request_method == "PUT" then
         update.update_post()
     else

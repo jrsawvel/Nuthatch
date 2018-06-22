@@ -10,7 +10,7 @@ local cdb_hash = {
   status            =  'pending'
 }
 
-local doc = luchia.document:new("scaupdvlp1")
+local doc = luchia.document:new("veerydvlp1")
 
 local response = doc:create(cdb_hash)
 
