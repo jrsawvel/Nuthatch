@@ -17,5 +17,5 @@
     mailgun_domain:                 <domain name>
     mailgun_from:                   Nuthatch <postmaster@example.com>
     markup_storage:                 /home/nuthatch/markup
-    max_entries:                    40
+    max_entries_on_page:            20
     database_name:                  <couchdb-db-name>

@@ -214,6 +214,27 @@ function M.table_print (tt, indent, done)
 end
 
 
+-- orgi_dt = 2018/06/26 13:47:56
+function M.format_date_time(orig_dt)
+
+    local tmp_array = M.split(orig_dt, " ")
+
+    local date = tmp_array[1]
+    local time = tmp_array[2]
+
+    local date_array = M.split(date, "/")
+
+    local hash = {}
+ 
+    local short_month_names = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"}
+    
+    local formatted_dt = string.format("%s %d, %d %s Z", short_month_names[tonumber(date_array[2])], date_array[3], date_array[1], time)
+
+    return formatted_dt
+end
+
+
+
 function M.split(str, pat)
    local t = {}  -- NOTE: use {n = 0} in Lua-5.0
    local fpat = "(.-)" .. pat
