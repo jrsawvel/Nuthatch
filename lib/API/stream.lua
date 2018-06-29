@@ -18,9 +18,10 @@ function M.read_stream(page_num)
 
     local max_entries = config.get_value_for("max_entries_on_page")
 
+    -- this math makes the result a float, such as 0.0 or 15.0
     local skip_count = (max_entries * page_num) - max_entries
 
-    local url = 'http://127.0.0.1:5984/' .. db .. '/_design/views/_view/stream/?descending=true&limit=' .. max_entries + 1 .. '&skip=' .. skip_count
+    local url = 'http://127.0.0.1:5984/' .. db .. '/_design/views/_view/stream?descending=true&limit=' .. max_entries + 1 .. '&skip=' .. math.tointeger(skip_count)
 
     local response = utils.get_unsecure_web_page(url)
 
