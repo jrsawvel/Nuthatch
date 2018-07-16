@@ -27,7 +27,7 @@ function M.clean_title(str)
     str = string.gsub(str, " ", "-")
     str = string.gsub(str, ":", "-")
     str = rex.gsub(str, "--", "")
-    str =  rex.gsub(str, "[^-a-zA-Z0-9]","")
+    str = rex.gsub(str, "[^-a-zA-Z0-9]","")
     return string.lower(str)
 end
 

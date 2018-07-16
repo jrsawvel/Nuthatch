@@ -3,10 +3,11 @@
 local M = {}
 
 
+local luchia  = require "luchia"
 local cgilua  = require "cgilua"
 local urlcode = require "cgilua.urlcode"
 local cjson   = require "cjson"
-local rex     = require "rex_pcre"
+-- local rex     = require "rex_pcre"
 
 
 local auth    = require "auth"
@@ -15,7 +16,7 @@ local rj      = require "returnjson"
 local title   = require "title"
 local format  = require "format"
 local config  = require "config"
-local files   = require "files"
+-- local files   = require "files"
 
 
 function M.create_post()
@@ -27,21 +28,23 @@ function M.create_post()
     local logged_in_author_name = hash.author
     local session_id            = hash.session_id
     local rev                   = hash.rev
+    local author                = config.get_value_for("author_name")
    
     if auth.is_valid_login(logged_in_author_name, session_id, rev) == false then 
         rj.report_error("400", "Unable to peform action.", "You are not logged in.")
     else
         local submit_type = hash.submit_type
-        if submit_type ~= "Preview" and submit_type ~= "Create" then
+        if submit_type ~= "Preview" and submit_type ~= "Post" then
             rj.report_error("400", "Unable to process post.", "Invalid submit type given.")
         else
            local original_markup = hash.markup
            local markup = utils.trim_spaces(original_markup)
+
            if markup == nil or markup == "" then
                rj.report_error("400", "Invalid post.", "You must enter text.")
            else
                local form_type = hash.form_type
-               if form_type ~= nill and form_type == "ajax" then
+               if form_type ~= nil and form_type == "ajax" then
                    markup = urlcode.unescape(markup) 
                    markup = utils.encode_extended_ascii(markup) 
                end
@@ -50,61 +53,67 @@ function M.create_post()
                if t.is_error then
                    rj.report_error("400", "Error creating post.", t.error_message)
                else
-                   local page_data   = format.extract_css(t.after_title_markup)
-                   local html        = format.markup_to_html(page_data.markup)
-                   local post_stats  = format.calc_reading_time_and_word_count(html) -- returns hash
+                   -- 11Jul2018 - these two lines came from my Sora code. 
+                   -- might add the custom CSS option later.
+                   -- local page_data   = format.extract_css(t.after_title_markup)
+                   -- local html        = format.markup_to_html(page_data.markup)
+
+                   local post_title  = t.title
+                   local post_type   = t.post_type
+                   local slug        = t.slug
+                   local html        = format.markup_to_html(t.after_title_markup)
 
                    local post_hash = {}
-                   -- post_hash.pretty_date_time = os.date("%a, %b %d, %Y - %I:%M %p Z")
-                     -- can assemble these two items into ISO 8601 format 2018-04-05T23:45:17Z
-                   post_hash.created_date   = os.date("%Y-%m-%d") -- 2018-04-05 = year, month, day
-                   post_hash.created_time   = os.date("%X") -- 23:45:17 in GMT
-                   post_hash.html           = html
-                   post_hash.title          = t.title
-                   post_hash.slug           = t.slug
-                   post_hash.post_type      = t.post_type
-                   post_hash.reading_time   = post_stats.reading_time
-                   post_hash.word_count     = post_stats.word_count 
-                   post_hash.author         = config.get_value_for("author_name")
-                   post_hash.custom_css     = page_data.custom_css
-                   post_hash.custom_json    = format.extract_json(t.after_title_markup)
 
-                   local tmp_diff_slug = rex.match(markup, "^<!--[ ]*slug[ ]*:[ ]*(.+)[ ]*-->", 1, "im")
-                   if tmp_diff_slug ~= nil then
-                       post_hash.slug = utils.trim_spaces(tmp_diff_slug)
-                   end 
-
-                   local tmp_tmpl = rex.match(markup, "^<!--[ ]*template[ ]*:[ ]*(.+)[ ]*-->", 1, "im")
-                   if tmp_tmpl ~= nil then
-                       post_hash.template = utils.trim_spaces(tmp_tmpl)
-                   end 
-
-                   local tmp_dir = rex.match(markup, "^<!--[ ]*dir[ ]*:[ ]*(.+)[ ]*-->", 1, "im")
-                   if tmp_dir ~= nil then
-                       post_hash.dir = utils.trim_spaces(tmp_dir)
-                       -- remove ending forward slash if it exists
-                       if rex.match(post_hash.dir, "[/]$") ~= nil then
-                           post_hash.dir = string.sub(post_hash.dir, 1, -2)
-                       end
-                       post_hash.location = config.get_value_for("home_page") .. "/" .. post_hash.dir .. "/" .. post_hash.slug .. ".html"   
+                   if submit_type == "Preview" then
+                       post_hash.html = html
+                       post_hash.title = post_title
+                       post_hash.post_type = post_type
+                       rj.success(post_hash)
                    else
-                       post_hash.location = config.get_value_for("home_page") .. "/" .. post_hash.slug .. ".html"   
+                       local post_stats      = format.calc_reading_time_and_word_count(html) -- returns hash
+                       local more_text_info  = format.get_more_text_info(html, slug, post_title) -- returns hash 
+                       local tags            = format.create_tag_array(markup)
+                       local created_at      = utils.create_datetime_stamp()
+
+                       local cdb_hash = {
+                           _id              = slug,
+                           type             = "post",
+                           title            = post_title,
+                           markup           = markup,
+                           html             = html,
+                           text_intro       = more_text_info.text_intro,
+                           more_text_exists = more_text_info.more_text_exists,
+                           post_type        = post_type,
+                           tags             = tags,
+                           author           = author,
+                           created_at       = created_at,
+                           updated_at       = created_at,
+                           reading_time     = post_stats.reading_time,
+                           word_count       = post_stats.word_count,
+                           post_status      = "public"
+                       }
+
+                       local db = config.get_value_for("database_name")
+
+                       local doc = luchia.document:new(db)
+ 
+                       -- _id in couchdb will be the slug for the post.
+                       -- instead of _id being included within cdb_hash, it gets added as an arg
+                       -- to this couchdb lua library command.
+                       local response = doc:create(cdb_hash, slug) 
+     
+                       local return_hash = {
+                           post_id = slug,
+                           rev     = response.rev,
+                           html    = html
+                       }
+
+                       rj.success(return_hash)
+--                       rj.report_error("400", "debug _id = ", cdb_hash._id)
                    end
 
-                  if post_hash.dir ~= nil and rex.match(post_hash.dir, "^[a-zA-Z0-9]") == nil then
-                      rj.report_error("400", "Invalid directory: [" .. post_hash.dir .. "]", "Directory structure must start with alpha-numeric.")
-                  else
 
-                      local rc_boolean = true
-
-                      if submit_type == "Create" then
-                          rc_boolean = files.output("create", post_hash, markup)
-                      end
-
-                      if rc_boolean == true then
-                          rj.success(post_hash)
-                      end
-                  end
 --                   rj.report_error("400", t.title .. "<br>" .. t.slug .. "<br><br>" .. t.after_title_markup, t.post_type .. "<br><br>" .. page_data.custom_css .. "<br><br><h3>markup</h3>" .. page_data.markup)
 -- rj.report_error("400", "HTML=", html)
                end

@@ -11,6 +11,92 @@ local utils   = require "utils"
 
 
 
+function M.create_tag_array(str)
+
+    local unique_tags = {}
+
+    unique_tags[1] = ""
+
+    return unique_tags
+
+end
+
+
+
+function M.hashtag_to_link(str) 
+    str = " " .. str
+
+    local tagsearchurl = "/tag/"
+
+    -- for hashtag in string.gmatch(str, "[ ]#(%w+)") do 
+    for hashtag in rex.gmatch(str, "[\\s]#(\\w+)", "is", nil) do 
+        print(hashtag) 
+        tagsearchstr = ' <a href="' .. tagsearchurl .. hashtag .. '">#' .. hashtag .. '</a>'
+        str = string.gsub(str, "[%s]#" .. hashtag, tagsearchstr)
+    end
+
+    str = utils.trim_spaces(str)
+
+    return str
+end
+
+
+
+function M.get_more_text_info(html, slug, title)
+    local tmp_post = rex.gsub(html, "<more />", "[more]", nil, "im")
+
+    -- not needed, since html is based upon the markup that exists after the title if a title exists
+    -- tmp_post = rex.gsub(tmp_post, '<h1 class="headingtext">', "[h1]", nil, "im")
+    -- tmp_post = rex.gsub(tmp_post, "</h1>", "[/h1]", nil, "im")
+
+    tmp_post = utils.remove_html(tmp_post)
+
+    local text_intro
+    local more_text_exists = 0 -- false - compatible with client code written in perl
+
+    local before_more, after_more = rex.match(tmp_post, "^(.*)[[]more[]](.*)$", 1, "is")
+
+    if before_more ~= nil and after_more ~=nil then
+        text_intro = before_more
+
+        local tmp_extended = utils.trim_spaces(after_more)
+        if tmp_extended:len() > 0 then
+            more_text_exists = 1
+        end
+       
+        if text_intro:len() > 300 then
+            text_intro = text_intro:sub(1, 300)
+            text_intro = text_intro .. " ..."
+        end 
+    elseif tmp_post:len() > 300 then
+       text_intro = tmp_post:sub(1, 300)
+       text_intro = text_intro .. " ..."
+       more_text_exists = 1
+    else
+        text_intro = tmp_post
+    end   
+
+-- not needed per above.
+--    text_intro = rex.gsub(text_intro, '[h1]', '<span class="streamtitle"><a href="/' .. slug .. '">', nil, "im")
+--    text_intro = rex.gsub(text_intro, '[h1]', '</a></span> - ', nil, "im")
+
+    text_intro = utils.remove_newline(text_intro)
+
+    -- todo create subs
+    -- $text_intro = Utils::url_to_link($text_intro);
+    text_intro = M.hashtag_to_link(text_intro)
+
+    return { more_text_exists = more_text_exists, text_intro = text_intro }
+   
+       -- https://github.com/jrsawvel/Veery-API-Perl/blob/master/lib/App/Format.pm#L195
+       -- wont' support the intro= command that exists in other veery api code. 
+       -- this command allows for custom intro text to be used. this text does not have to 
+       -- appear in the main article. the info gets removed from the final article output.
+
+end
+
+
+
 function M.calc_reading_time_and_word_count(html)
 
     local text = utils.remove_html(html)
@@ -103,6 +189,9 @@ function _custom_commands(str)
     str = rex.gsub(str, "^c[.][.]", "</code></pre>", nil, "im")
     str = rex.gsub(str, "^c[.]", "<pre><code>", nil, "im")
 
+
+    str = rex.gsub(str, "^more.", "<more />", nil, "im")
+
 --    str = rex.gsub(str, "^q[.][.]", "\n</blockquote>", nil, "im")
 --    str = rex.gsub(str, "^q[.]", "<blockquote>\n", nil, "im")
 
@@ -116,12 +205,13 @@ function M.markup_to_html(markup)
 
     local html = _custom_commands(markup)
 
+    html = M.hashtag_to_link(html)
+
     html = markdown(html)
 
     return html
 
 end
-
 
 
 
