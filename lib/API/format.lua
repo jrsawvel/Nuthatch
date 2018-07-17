@@ -12,25 +12,35 @@ local utils   = require "utils"
 
 
 function M.create_tag_array(str)
+    str = " " .. str  -- hack to help with regex
 
     local unique_tags = {}
 
-    unique_tags[1] = ""
+    local tag_list_str = "|"
+
+    for hashtag in rex.gmatch(str, "[\\s]#(\\w+)", "is", nil) do 
+        if string.find(tag_list_str, hashtag) == nil then
+            tag_list_str = tag_list_str .. hashtag .. "|"
+            table.insert(unique_tags, hashtag) 
+        end
+    end
+
+    if #unique_tags < 1 then
+        unique_tags[1] = ""
+    end
 
     return unique_tags
-
 end
 
 
 
-function M.hashtag_to_link(str) 
+function _hashtag_to_link(str) 
     str = " " .. str
 
     local tagsearchurl = "/tag/"
 
     -- for hashtag in string.gmatch(str, "[ ]#(%w+)") do 
     for hashtag in rex.gmatch(str, "[\\s]#(\\w+)", "is", nil) do 
-        print(hashtag) 
         tagsearchstr = ' <a href="' .. tagsearchurl .. hashtag .. '">#' .. hashtag .. '</a>'
         str = string.gsub(str, "[%s]#" .. hashtag, tagsearchstr)
     end
@@ -42,7 +52,7 @@ end
 
 
 
-function M.get_more_text_info(html, slug, title)
+function M.get_more_text_info(markup, html, slug, title)
     local tmp_post = rex.gsub(html, "<more />", "[more]", nil, "im")
 
     -- not needed, since html is based upon the markup that exists after the title if a title exists
@@ -82,9 +92,11 @@ function M.get_more_text_info(html, slug, title)
 
     text_intro = utils.remove_newline(text_intro)
 
-    -- todo create subs
-    -- $text_intro = Utils::url_to_link($text_intro);
-    text_intro = M.hashtag_to_link(text_intro)
+    text_intro = utils.url_to_link(text_intro)
+
+    if _get_power_command_on_off_setting_for("hashtag_to_link", markup, true) == true then
+        text_intro = _hashtag_to_link(text_intro)
+    end
 
     return { more_text_exists = more_text_exists, text_intro = text_intro }
    
@@ -117,15 +129,15 @@ function M.calc_reading_time_and_word_count(html)
 
 end
 
- 
 
--- <!-- toc:yes -->  except that no YES/NO commands exist in Sora at the moment. 
--- this function is unused.
-function M.get_power_command_on_off_setting_for(command, str, default_bool) 
+
+-- commands in markup use values yes and no.
+-- ex:   hashtag_to_link = no
+function _get_power_command_on_off_setting_for(command, str, default_bool) 
 
     local return_bool = default_bool
 
-    local tmp_str = rex.match(str, "^<!--[ ]*" .. command .. "[ ]*:[ ]*(.*)[ ]*-->", 1, "im")
+    local tmp_str = rex.match(str, "^" .. command .. "[\\s]*=[\\s]*(.*)$", 1, "im")
 
     if tmp_str ~= nil then   
         local string_value = utils.trim_spaces(string.lower(tmp_str))
@@ -134,12 +146,12 @@ function M.get_power_command_on_off_setting_for(command, str, default_bool)
         elseif string_value == "yes" then 
             return_bool = true 
         end 
-    else
     end
  
     return return_bool
 
 end
+
 
 
 
@@ -201,11 +213,31 @@ end
 
 
 
+
+function _remove_power_commands(str)
+
+    -- todo : url_to_link=yes|no
+    -- possible todo : newline_to_br=yes|no
+    -- hashtag_to_link=yes|no
+
+    str = rex.gsub(str, "^hashtag_to_link[\\s]*=[\\s]*[noNOyesYES]+", "", nil, "im")
+
+    return str
+
+end
+
+
+
+
 function M.markup_to_html(markup)
 
-    local html = _custom_commands(markup)
+    local html = _remove_power_commands(markup)
 
-    html = M.hashtag_to_link(html)
+    html = _custom_commands(html)
+
+    if _get_power_command_on_off_setting_for("hashtag_to_link", markup, true) == true then
+        html = _hashtag_to_link(html)
+    end
 
     html = markdown(html)
 

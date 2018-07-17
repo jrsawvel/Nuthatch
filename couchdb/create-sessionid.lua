@@ -12,13 +12,21 @@ local cdb_hash = {
 
 local doc = luchia.document:new("veerydvlp1")
 
-local response = doc:create(cdb_hash)
+-- lucia create api call returns: responsedata, responsecode, headers, status_code.
+local responsedata, responsecode, headers, status_code = doc:create(cdb_hash, "jrs")
 
-local json_text = cjson.encode(response)
+-- in couchdb, id must be unique. if it's not, then the following info is returned:
+--    responsecode = 409
+--    status_code = HTTP/1.1 409 Conflict
 
-print(json_text)
+print("responsecode = " .. responsecode)
+print("status_code = " .. status_code)
+print("\n")
+for k,v in pairs(headers) do print(k,v) end
 
-
-print("rev = " .. response.rev)
-
+if responsecode < 300 then
+    local json_text = cjson.encode(responsedata)
+    print(json_text)
+    print("rev = " .. responsedata.rev)
+end
 

@@ -11,11 +11,16 @@ local https = require "ssl.https"
 
 
 function M.create_datetime_stamp()
-    -- 2018/06/20 14:17:23
+    -- formatted as: 2018/06/20 14:17:23
 
-    local t = os.date("*t")
+     -- either method below works
 
-    local datetime = os.date("%Y/%m/%d %I:%M:%S", os.time(t))
+     local t = os.date("*t")
+     local datetime = os.date("%Y/%m/%d %H:%M:%S", os.time(t))
+
+    -- local created_date   = os.date("%Y/%m/%d") -- 2018/04/05 = year, month, day
+    -- local created_time   = os.date("%X") -- 23:45:17 in GMT
+    -- local datetime = created_date .. " " .. created_time
 
     return datetime
 end

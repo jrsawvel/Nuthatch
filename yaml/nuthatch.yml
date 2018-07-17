@@ -19,3 +19,4 @@
     markup_storage:                 /home/nuthatch/markup
     max_entries_on_page:            20
     database_name:                  <couchdb-db-name>
+    save_markup_to_file_system:     1

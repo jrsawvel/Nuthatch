@@ -16,7 +16,7 @@ local rj      = require "returnjson"
 local title   = require "title"
 local format  = require "format"
 local config  = require "config"
--- local files   = require "files"
+local files   = require "files"
 
 
 function M.create_post()
@@ -72,7 +72,7 @@ function M.create_post()
                        rj.success(post_hash)
                    else
                        local post_stats      = format.calc_reading_time_and_word_count(html) -- returns hash
-                       local more_text_info  = format.get_more_text_info(html, slug, post_title) -- returns hash 
+                       local more_text_info  = format.get_more_text_info(markup, html, slug, post_title) -- returns hash 
                        local tags            = format.create_tag_array(markup)
                        local created_at      = utils.create_datetime_stamp()
 
@@ -101,16 +101,31 @@ function M.create_post()
                        -- _id in couchdb will be the slug for the post.
                        -- instead of _id being included within cdb_hash, it gets added as an arg
                        -- to this couchdb lua library command.
-                       local response = doc:create(cdb_hash, slug) 
-     
-                       local return_hash = {
-                           post_id = slug,
-                           rev     = response.rev,
-                           html    = html
-                       }
-
-                       rj.success(return_hash)
---                       rj.report_error("400", "debug _id = ", cdb_hash._id)
+                       -- lucia create api call returns: responsedata, responsecode, headers, status_code.
+                       local responsedata, responsecode, headers, status_code = doc:create(cdb_hash, slug)
+                        
+                       if responsecode > 399 then
+                           rj.report_error("400", "Unable to create post.", status_code)
+                       else
+                           if config.get_value_for("save_markup_to_file_system") then
+                               local files_rc = files.save_markup("create", cdb_hash)
+                               if files_rc == true then
+                                   local return_hash = {
+                                       post_id = slug,
+                                       rev     = responsedata.rev,
+                                       html    = html
+                                   }
+                                   rj.success(return_hash)
+                               end
+                           else
+                               local return_hash = {
+                                   post_id = slug,
+                                   rev     = responsedata.rev,
+                                   html    = html
+                               }
+                               rj.success(return_hash)
+                           end
+                       end
                    end
 
 
