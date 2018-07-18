@@ -92,7 +92,9 @@ function M.get_more_text_info(markup, html, slug, title)
 
     text_intro = utils.remove_newline(text_intro)
 
-    text_intro = utils.url_to_link(text_intro)
+    if _get_power_command_on_off_setting_for("url_to_link", markup, false) == true then
+        text_intro = utils.url_to_link(text_intro)
+    end
 
     if _get_power_command_on_off_setting_for("hashtag_to_link", markup, true) == true then
         text_intro = _hashtag_to_link(text_intro)
@@ -216,11 +218,11 @@ end
 
 function _remove_power_commands(str)
 
-    -- todo : url_to_link=yes|no
-    -- possible todo : newline_to_br=yes|no
+    -- url_to_link=yes|no
     -- hashtag_to_link=yes|no
 
     str = rex.gsub(str, "^hashtag_to_link[\\s]*=[\\s]*[noNOyesYES]+", "", nil, "im")
+    str = rex.gsub(str, "^url_to_link[\\s]*=[\\s]*[noNOyesYES]+", "", nil, "im")
 
     return str
 
@@ -232,6 +234,10 @@ end
 function M.markup_to_html(markup)
 
     local html = _remove_power_commands(markup)
+
+    if _get_power_command_on_off_setting_for("url_to_link", markup, false) == true then
+        html = utils.url_to_link(html)
+    end
 
     html = _custom_commands(html)
 

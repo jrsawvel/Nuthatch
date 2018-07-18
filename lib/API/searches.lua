@@ -27,7 +27,7 @@ function M.searches(a_params)
 
 end
 
--- todo: using the elasticsearch's dsl feture requires a post request, using json.
+-- todo: using elasticsearch's dsl feture requires a post request with json.
 
 
 return M

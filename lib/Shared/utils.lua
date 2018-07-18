@@ -10,6 +10,46 @@ local https = require "ssl.https"
 
 
 
+
+function M.is_valid_email(str)
+    -- in form name@host
+
+    if rex.find(str, "^[0-9a-zA-Z.\\-_]+@[0-9a-zA-Z.\\-]+$", 1) == nil then
+        return false -- characters allowed on name: 0-9a-Z-._ on host: 0-9a-Z-. on between: @   
+    elseif rex.find(str, "^[0-9a-zA-Z]") == nil then 
+        return false -- must start with alphanumeric
+    elseif rex.find(str, "[0-9a-zA-Z]$") == nil then
+        return false -- must end with alphanumeric
+    elseif rex.find(str, ".@[0-9a-zA-Z]") == nil then
+        return false -- host must start with alpha or num
+    elseif rex.find(str, ".\\.\\-.") ~= nil then
+        return false -- cannot have consec .-
+    elseif rex.find(str, ".\\-\\..") ~= nil then
+        return false -- cannot have consec -.
+    elseif rex.find(str, ".\\-\\-.") ~= nil then
+        return false -- cannot have consec --
+    elseif rex.find(str, ".\\.\\..") ~= nil then
+        return false -- cannot have consec ..
+    else 
+        return true 
+    end
+
+end
+
+
+
+
+function M.url_to_link(str)
+    str = " " .. str
+    for p, d in rex.gmatch(str, "[\\s](\\w+://)([.A-Za-z0-9?=:|;,_#^\\-/%+&~\\(\\)@!]+)", "is", nil) do
+        str = rex.gsub(str, "[\\s]" .. p .. d, ' <a href="' .. p .. d .. '">' .. p .. d .. '</a>', nil, "is")
+    end
+    return str
+end
+
+
+
+
 function M.create_datetime_stamp()
     -- formatted as: 2018/06/20 14:17:23
 
