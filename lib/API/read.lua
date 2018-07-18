@@ -62,12 +62,13 @@ function M.get_post(post_id)
     local t = _get_post_data(post_id, view_name)        
 
     if t ~= nil then
-        if is_logged_in ~= "true" then
+        if is_logged_in ~= true then
             t._rev = ""
         end
         local hash = {}
         hash.post = t
         rj.success(hash)
+          -- rj.report_error("400", "rev=" .. t._rev, "is logged in=" .. tostring(is_logged_in))
     end
 
 end

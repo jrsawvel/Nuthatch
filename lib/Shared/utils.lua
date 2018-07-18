@@ -13,6 +13,7 @@ local https = require "ssl.https"
 
 function M.is_valid_email(str)
     -- in form name@host
+    -- ex: nick.adams@upnorth.org
 
     if rex.find(str, "^[0-9a-zA-Z.\\-_]+@[0-9a-zA-Z.\\-]+$", 1) == nil then
         return false -- characters allowed on name: 0-9a-Z-._ on host: 0-9a-Z-. on between: @   
@@ -30,8 +31,27 @@ function M.is_valid_email(str)
         return false -- cannot have consec --
     elseif rex.find(str, ".\\.\\..") ~= nil then
         return false -- cannot have consec ..
-    else 
-        return true 
+    elseif rex.find(str, ".\\._.") ~= nil then
+        return false -- cannot have consec ._
+    elseif rex.find(str, ".\\-_.") ~= nil then
+        return false -- cannot have consec -_
+    elseif rex.find(str, "._\\..") ~= nil then
+        return false -- cannot have consec _. 
+    elseif rex.find(str, "._\\-.") ~= nil then
+        return false -- cannot have consec _- 
+    elseif rex.find(str, ".__.") ~= nil then
+        return false -- cannot have consec __
+    elseif rex.find(str, ".[a-zA-Z]+$") == nil then
+        return false -- tld must be alpha (com, org, net, xyz, beer, tv, etc.)
+    elseif rex.find(str, ".[a-zA-Z]+$") ~= nil then
+        local tld = rex.match(str, ".([a-zA-Z]+)$", 1)
+        if string.len(tld) < 2 then
+            return false -- tlds are at least two chars wide
+        else 
+            return true     
+        end
+    else
+        return false -- should never arrive at this point
     end
 
 end

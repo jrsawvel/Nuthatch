@@ -85,12 +85,11 @@ function _check_inputs(t_i, t_a)
         return {new_email = nil, err_msg = "Invalid user information provided. (B)"}
     elseif utils.is_valid_email(old_email) == false then
         return {new_email = nil, err_msg = "Invalid syntax for old email address provided."}
-    else if utils.is_valid_email(new_email) == false then
+    elseif utils.is_valid_email(new_email) == false then
         return {new_email = nil, err_msg = "Invalid syntax for new email address provided."}
     else
         return {new_email = new_email}
     end   
-
 end
 
 

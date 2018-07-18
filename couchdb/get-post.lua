@@ -9,15 +9,15 @@ local cjson   = require "cjson"
 
 local doc = luchia.document:new("veerydvlp1")
 
-local response = doc:retrieve("info")
+local responsedata, responsecode, headers, status_code = doc:retrieve("info")
 
-if response == nil then
-    print("document not found.")
+if responsedata == nil or responsecode >= 300 then
+    print("failed to retrieve doc. " .. status_code)
 else
-    local json_text = cjson.encode(response)
+    local json_text = cjson.encode(responsedata)
     print(json_text)
+    print("\n\n" .. responsedata.post_status)
 end
 
 
-print("\n\n" .. response.post_status)
 
