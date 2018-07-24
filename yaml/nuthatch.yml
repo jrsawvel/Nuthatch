@@ -1,6 +1,6 @@
 
-    site_name:                      Nuthatch Test Site
-    site_description:               Static Site Generator Built with Lua
+    site_name:                      Nuthatch
+    site_description:               My Memex Built with Lua
     home_page:                      http://example.com
     domain_name:                    example.com
     app_name:                       Nuthatch 1.0

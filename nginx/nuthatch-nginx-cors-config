@@ -14,7 +14,6 @@ server {
         }
 
         location /api/v1 {
-
             if ($request_method = 'OPTIONS') {
                 add_header 'Access-Control-Allow-Origin' '*';
                 add_header 'Access-Control-Allow-Credentials' 'true';
@@ -54,13 +53,13 @@ server {
                 add_header 'Access-Control-Allow-Headers' 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type';
             }
 
-	    root /home/nuthatch/Nuthatch/lua;
-            index nuthatchapi.lua;
-            rewrite  ^/(.*)$ /nuthatchapi.lua?query=$1 break;
-            fastcgi_pass  127.0.0.1:8999;
-            fastcgi_index nuthatchapi.lua;
-            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-            include fastcgi_params;
+	     root /home/nuthatch/Nuthatch/lua;
+             index nuthatchapi.lua;
+             rewrite  ^/(.*)$ /nuthatchapi.lua?query=$1 break;
+             fastcgi_pass  127.0.0.1:8999;
+             fastcgi_index nuthatchapi.lua;
+             fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+             include fastcgi_params;
         }
 
         set $use_cache 1;

@@ -54,10 +54,10 @@ function M.do_tag_search(a_params)
         else
             local stream = t.rows
 
-            local next_link_bool = 0
+            local next_link_bool = false
 
             if #stream > max_entries then
-                next_link_bool = 1
+                next_link_bool = true
             end
 
             local posts = {}
@@ -134,10 +134,10 @@ function M.do_string_search(a_params)
             else
                 local stream = t.hits.hits
 
-                local next_link_bool = 0
+                local next_link_bool = false
 
                 if #stream > max_entries then
-                    next_link_bool = 1
+                    next_link_bool = true
                 end
 
                 local posts = {}

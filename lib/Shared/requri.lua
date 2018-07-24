@@ -17,16 +17,13 @@ function M.get_cgi_params()
 
     local path_info = os.getenv(env_var)
 
-    path_info = string.gsub(path_info, "/sora.lua", "") 
-
-    path_info = string.gsub(path_info, ".html", "") 
+--    path_info = string.gsub(path_info, ".html", "") 
 
     path_info = string.gsub(path_info, "/api/v1", "") -- api code
 
-    if string.find(path_info, "/sora/") ~= nil then
-        path_info = string.gsub(path_info, "/sora/", "/") -- client-side code
-        -- path_info = "/" .. path_info -- why is this needed?
-    end
+--    if string.find(path_info, "/nuthatch/") ~= nil then
+--        path_info = string.gsub(path_info, "/sora/", "/") -- client-side code
+--    end
 
     if string.find(path_info, "?") ~= nil then
         local a = utils.split(path_info, "?")

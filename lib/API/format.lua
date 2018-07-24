@@ -62,7 +62,7 @@ function M.get_more_text_info(markup, html, slug, title)
     tmp_post = utils.remove_html(tmp_post)
 
     local text_intro
-    local more_text_exists = 0 -- false - compatible with client code written in perl
+    local more_text_exists = 0
 
     local before_more, after_more = rex.match(tmp_post, "^(.*)[[]more[]](.*)$", 1, "is")
 

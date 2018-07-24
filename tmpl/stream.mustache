@@ -1,0 +1,96 @@
+{{> header}}
+
+<main>
+
+{{#search}} 
+<p>
+{{{search_type_text}}} results for &ldquo;{{{keyword}}}&rdquo;
+ - <a href="/{{{search_type}}}/{{{search_uri_str}}}">#</a>
+</p>
+{{/search}}
+
+
+
+{{#notloggedin}} 
+<center>
+<span class="site-description greytext"><a href="/info">{{{site_description}}}</a></span>
+</center>
+{{/notloggedin}}
+
+
+
+{{#loggedin}}
+<p>
+<form id="scaupform" method="post" action="/createpost">
+<input type="hidden" name="post_location" value="notes_stream"> 
+<textarea id="microblogtextareabox" name="markup" rows="5" cols="50" wrap="virtual" autofocus></textarea>
+<br>
+<input class="submitbutton" type="submit" name="sb" value="Post"> 
+ &nbsp; &nbsp; &nbsp; &nbsp;  <span class="greytext"><a title="large textarea box for writing" href="/compose">W</a></span>
+ &nbsp; &nbsp; &nbsp; &nbsp;  <span class="greytext"><a title="javascript editor" href="/splitscreen">[|]</a></span>
+</form>
+</p>
+{{/loggedin}}
+
+
+
+{{#stream_loop}}
+<article>
+<p>
+<section class="stream-content">
+<!-- {{{post_type}}} -->
+
+
+{{#show_title}}
+<span class="streamtitle"><a href="/{{{slug}}}">{{{title}}}</a></span> -  
+{{/show_title}}
+
+
+{{{text_intro}}}
+
+
+{{#more_text_exists}}
+<a href="/{{{slug}}}"><strong>more&gt;&gt;</strong></a>
+{{/more_text_exists}}
+
+
+{{#show_reading_time}}
+<small>{{{reading_time}}} min read</small>
+{{/show_reading_time}}
+
+
+<br />
+</section>
+<span class="greytext"><a title="by {{{author}}}" href="/{{{slug}}}"><time datetime="{{{formatted_updated_at}}}">{{{formatted_updated_at}}}</time></a> &nbsp; &nbsp; {{{tag_list}}}</span>
+<!-- {{{updated_at}}} -->
+</p>
+</article>
+{{/stream_loop}}
+
+
+
+{{#not_last_page}}
+<span class="olderlink"><a href="{{{next_page_url}}}">Older &gt;&gt;</a></span>
+{{/not_last_page}}
+
+{{#not_page_one}} 
+<a href="{{{previous_page_url}}}">&lt;&lt; Newer</a>
+{{/not_page_one}}
+
+
+</main>
+
+
+
+{{#loggedin}} 
+<br />
+<p style="text-align:center">
+ <span class="greytext"><a title="logout" href="/logout">LO</a></span>
+ &nbsp; &nbsp; &nbsp; &nbsp;  <span class="greytext"><a title="show deleted posts" href="/deleted">DEL</a></span>
+ &nbsp; &nbsp; &nbsp; &nbsp;  <span class="greytext"><a title="user settings" href="/settings">U</a></span>
+</p>
+{{/loggedin}}
+
+{{> footer}}
+
+

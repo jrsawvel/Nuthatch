@@ -31,10 +31,10 @@ function M.read_stream(page_num)
     if t.rows[1] ~= nil then
         local stream = t.rows
 
-        local next_link_bool = 0
+        local next_link_bool = false
 
         if #stream > max_entries then
-                next_link_bool = 1
+                next_link_bool = true
         end
 
         local posts = {}
