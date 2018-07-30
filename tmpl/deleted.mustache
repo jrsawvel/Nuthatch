@@ -1,0 +1,11 @@
+{{> header}}
+<main>
+{{#deleted_loop}}
+<article class="post">
+<span class="greytext"><a href="/undelete/{{{slug}}}">undelete</a></span>
+ - 
+ <a href="/{{{slug}}}">{{{title}}}</a> - <small><em>{{{post_type}}}</em></small>
+</article>
+{{/deleted_loop}}
+</main>
+{{> footer}}

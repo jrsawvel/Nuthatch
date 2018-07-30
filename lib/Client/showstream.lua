@@ -12,6 +12,8 @@ local httputils = require "httputils"
 local user      = require "user"
 
 
+-- todo in show_stream, cache page one of stream in memcached if user is not logged in. 
+
 
 
 function M.show_search_form(a_params)
@@ -23,34 +25,9 @@ end
 
 
 
-function M.show_stream(a_params, creation_type)
+function _process_stream(hash, max_posts_to_display)
 
-    local max_entries = config.get_value_for("max_entries_on_page")
-
-    local query_string = "/"
-
-    local page_num = 1
-
-    if #a_params > 1 then
-        if utils.is_numeric(a_params[2]) then
-            page_num = math.tointeger(a_params[2])
-            if page_num > 1 then
-                query_string = query_string .. "?page=" .. page_num
-            end
-        end
-    end
-
-    local api_url = config.get_value_for("api_url") .. "/posts" .. query_string
-
-    local response_body, status_code, headers_table, status_string = httputils.get_unsecure_web_page(api_url)
-
-    local h_json = cjson.decode(response_body)
- 
-    if status_code >= 400 and status_code < 500 then
-        display.report_error("user", h_json["user_message"], h_json["system_message"])
-    else
-        local next_link_bool = h_json.next_link_bool
-        local stream         = h_json.posts
+        local stream         = hash.posts
         local len = #stream
 
         local posts = {}
@@ -59,9 +36,10 @@ function M.show_stream(a_params, creation_type)
         -- remove this code block. should this be done on the API side at create/update article time?
         -- if yes, then the html-based tag list string would be another key-value store in the doc.
 
-        local ctr = 0
 
         for i=1, #stream do
+            local ctr = 0
+
             if stream[i].post_type == "article" then
                 stream[i].show_title = true
             end
@@ -92,12 +70,51 @@ function M.show_stream(a_params, creation_type)
 
            table.insert(posts, stream[i])
 
-           ctr = ctr +1
+           ctr = ctr + 1
         
-           if ctr >= max_entries then
+           if ctr >= max_posts_to_display then
                break
            end
         end
+
+    return posts
+
+end
+
+
+
+function M.show_stream(a_params, creation_type)
+
+    local max_entries = config.get_value_for("max_entries_on_page")
+
+    local query_string = "/"
+
+    local page_num = 1
+
+    if #a_params > 1 then
+        if utils.is_numeric(a_params[2]) then
+            page_num = math.tointeger(a_params[2])
+            if page_num > 1 then
+                query_string = query_string .. "?page=" .. page_num
+            end
+        end
+    end
+
+    local api_url = config.get_value_for("api_url") .. "/posts" .. query_string
+
+    local response_body, status_code, headers_table, status_string = httputils.get_unsecure_web_page(api_url)
+
+    local h_json = cjson.decode(response_body)
+ 
+    if status_code >= 400 and status_code < 500 then
+        display.report_error("user", h_json["user_message"], h_json["system_message"])
+
+    else
+        local posts = _process_stream(h_json, max_entries)
+        
+        local len = #posts
+
+        local next_link_bool = h_json.next_link_bool
 
         page.set_template_name("stream")
 
@@ -130,14 +147,6 @@ function M.show_stream(a_params, creation_type)
         page.set_template_variable("next_page_url", next_page_url)
         page.set_template_variable("previous_page_url", previous_page_url)
 
---[[
-        if ( $page_num == 1 and !User::get_logged_in_flag() and Config::get_value_for("write_html_to_memcached") ) {
-            CacheHtml::cache_page($t->create_html("Stream of Posts"), "homepage");
-        } elsif ( $creation_type eq "private" ) {
-           return $t->create_html("Stream of Posts");
-        }
-]]
-
         display.web_page(page.get_output("Stream of Posts"))
 
     end
@@ -147,6 +156,8 @@ end
 
 
 function M.string_search(a_params)
+
+    local max_entries = config.get_value_for("max_entries_on_page")
 
     local search_string = nil 
 
@@ -163,7 +174,7 @@ function M.string_search(a_params)
         end
 
         if utils.is_numeric(a_params[3]) then
-            page_num = a_params[3]
+            page_num = math.tointeger(a_params[3])
             if page_num > 1 then
                 query_string = "?page=" .. page_num
             end
@@ -188,10 +199,161 @@ function M.string_search(a_params)
         if status_code >= 400 and status_code < 500 then
             display.report_error("user", h_json["user_message"], h_json["system_message"])
         else
+            if h_json.posts == nil  then
+                display.success("No search reusults found", "Search results for " .. search_string, "No matches found.")
+            else
+                local posts = _process_stream(h_json, max_entries)
+                local len = #posts
+                local next_link_bool = h_json.next_link_bool
 
+                page.set_template_name("stream")
+
+                page.set_template_variable("stream_loop", posts)
+
+                page.set_template_variable("search", true)
+                page.set_template_variable("keyword", search_string)
+                page.set_template_variable("search_uri_str", search_uri_str)
+                page.set_template_variable("search_type_text", "Search")
+                page.set_template_variable("search_type", "search")
+
+                if page_num == 1 then
+                    page.set_template_variable("not_page_one", false)
+                else
+                    page.set_template_variable("not_page_one", true)
+                end
+
+                if len >= max_entries and next_link_bool == true then
+                    page.set_template_variable("not_last_page", true)
+                else
+                    page.set_template_variable("not_last_page", false)
+                end
+
+                local previous_page_num = page_num - 1
+                local next_page_num     = page_num + 1
+
+                local next_page_url     = "/search/" .. search_uri_str .. "/" .. next_page_num
+                local previous_page_url = "/search/" .. search_uri_str .. "/" .. previous_page_num
+
+                page.set_template_variable("next_page_url", next_page_url)
+                page.set_template_variable("previous_page_url", previous_page_url)
+
+                display.web_page(page.get_output("Search Results for " .. search_string))
+
+            end
 
         end
 
+    end
+
+end
+
+
+
+function M.tag_search(a_params)
+
+    local max_entries = config.get_value_for("max_entries_on_page")
+
+    local tag_name = a_params[2]
+
+    local query_string = ""
+
+    local page_num = 1
+
+    if utils.is_numeric(a_params[3]) then
+        page_num = math.tointeger(a_params[3])
+        if page_num > 1 then
+            query_string = "?page=" .. page_num
+        end
+    end
+
+    tag_name = utils.trim_spaces(tag_name)
+
+    if tag_name == nil or tag_name == "" then
+        display.report_error("user", "Missing data.", "Enter tag name to search.")
+    else
+        local api_url = config.get_value_for("api_url") .. "/searches/tag/" .. tag_name .. query_string
+
+        local response_body, status_code, headers_table, status_string = httputils.get_unsecure_web_page(api_url)
+
+        local h_json = cjson.decode(response_body)
+ 
+        if status_code >= 400 and status_code < 500 then
+            display.report_error("user", h_json["user_message"], h_json["system_message"])
+        else
+            if h_json.posts == nil  then
+                display.success("No search reusults found", "Search results for " .. tag_name, "No matches found.")
+            else
+                local posts = _process_stream(h_json, max_entries)
+                local len = #posts
+                local next_link_bool = h_json.next_link_bool
+
+                page.set_template_name("stream")
+
+                page.set_template_variable("stream_loop", posts)
+
+                page.set_template_variable("search", true)
+                page.set_template_variable("keyword", tag_name)
+                page.set_template_variable("search_uri_str", tag_name)
+                page.set_template_variable("search_type_text", "Tag search")
+                page.set_template_variable("search_type", "tag")
+
+                if page_num == 1 then
+                    page.set_template_variable("not_page_one", false)
+                else
+                    page.set_template_variable("not_page_one", true)
+                end
+
+                if len >= max_entries and next_link_bool == true then
+                    page.set_template_variable("not_last_page", true)
+                else
+                    page.set_template_variable("not_last_page", false)
+                end
+
+                local previous_page_num = page_num - 1
+                local next_page_num     = page_num + 1
+
+                local next_page_url     = "/tag/" .. tag_name .. "/" .. next_page_num
+                local previous_page_url = "/tag/" .. tag_name .. "/" .. previous_page_num
+
+                page.set_template_variable("next_page_url", next_page_url)
+                page.set_template_variable("previous_page_url", previous_page_url)
+
+                display.web_page(page.get_output("Tag Results for " .. tag_name))
+
+            end
+
+        end
+
+    end
+
+end
+
+
+
+function M.show_deleted_posts()
+
+    local author_name  = user.get_logged_in_author_name()
+    local session_id   = user.get_logged_in_session_id()
+    local rev          = user.get_logged_in_rev()
+
+    local query_string = "?author=" .. author_name .. "&session_id=" .. session_id .. "&rev=" .. rev .. "&deleted=yes"
+
+    local api_url = config.get_value_for("api_url") .. "/posts" .. query_string
+
+    local response_body, status_code, headers_table, status_string = httputils.get_unsecure_web_page(api_url)
+
+    local h_json = cjson.decode(response_body)
+
+    if status_code >= 400 and status_code < 500 then
+        display.report_error("user", h_json["user_message"], h_json["system_message"])
+    elseif status_code >= 200 and status_code < 300 then
+        page.set_template_name("deleted")
+        page.set_template_variable("deleted_loop", h_json.posts)
+        local html_output = page.get_output("Deleted Posts")
+-- display.report_error("user", "json", response_body)
+        display.web_page(html_output) 
+    else  
+        display.report_error("user", "Unable to complete request.", "Invalid response code returned from API.")
     end
 
 end

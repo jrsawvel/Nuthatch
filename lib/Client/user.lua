@@ -24,6 +24,26 @@ function M.get_logged_in_flag()
     end
 end
 
+
+
+function M.get_logged_in_author_name()
+    return display.get_cookie("author_name")
+end
+
+
+
+function M.get_logged_in_session_id()
+    return display.get_cookie("session_id")
+end
+
+
+
+function M.get_logged_in_rev()
+    return display.get_cookie("rev")
+end
+
+
+
 function M.logout()
     local author_name  = display.get_cookie("author_name")
     local session_id   = display.get_cookie("session_id")

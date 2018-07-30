@@ -1,0 +1,27 @@
+
+created Jul 23, 2018 - updated Jul 24, 2018
+
+functions to add:
+
+    DONE showerror          
+post               
+    DONE searchform         
+    DONE stream
+    DONE tag                
+    DONE search             
+    DONE login              
+    DONE dologin            
+    DONE nopwdlogin         
+createpost         
+compose            
+    DONE logout             
+delete             
+    DONE deleted            
+    DONE undelete           
+edit               
+updatepost         
+splitscreen        
+splitscreenedit    
+settings           
+updatesettings     
+cacheit            
