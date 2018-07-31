@@ -1,0 +1,58 @@
+{{> header}}
+
+<!-- {{{post_type}}} -->
+
+<main>
+
+<article>
+
+<header>
+{{#loggedin}}
+<div class="edit-link">
+<span class="greytext"><a href="/edit/{{{slug}}}">edit</a></span>
+</div>
+{{/loggedin}}
+{{#show_reading_time}} 
+<div class="post-min-read">
+{{{reading_time}}} min
+</div>
+{{/show_reading_time}}
+{{#show_title}}
+<hgroup>
+<h1 class="headingtext"><a href="/{{{slug}}}">{{{title}}}</a></h1> 
+<!-- <h2>sub title will be here</h2> -->
+</hgroup>
+{{/show_title}}
+</header>
+
+<section class="article-body">
+{{{html}}}
+</section> 
+
+<footer class="greytext">
+<p> 
+by <a href="/{{{author_profile}}}">{{{author}}}</a>
+ - {{{word_count}}} words
+{{#show_reading_time}} 
+ - {{{reading_time}}} min read
+{{/show_reading_time}}
+<br />
+created: <time datetime="{{{created_at}}}">{{{created_at}}}</time>
+{{#modified}} 
+ - modified: <time datetime="{{{updated_at}}}">{{{updated_at}}}</time>
+{{/modified}}
+ - <a title="Permalink" href="/{{{slug}}}">#</a>
+
+{{#loggedin}}
+<br />
+ <a href="/delete/{{{slug}}}">delete</a>
+{{/loggedin}}
+</p>
+</footer>
+
+</article>
+
+</main>
+
+{{> footer}}
+

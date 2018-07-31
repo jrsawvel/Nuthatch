@@ -11,6 +11,7 @@
     default_doc_root:               /home/nuthatch/docroot
     debug_mode:                     true
     api_url:                        http://example.com/api/v1
+    author_profile:                 profile
 
     author_name:                    Nick Adams
     mailgun_api_key:                <api-key>

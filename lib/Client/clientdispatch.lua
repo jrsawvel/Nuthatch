@@ -9,6 +9,8 @@ local user       = require "user"
 local display    = require "display"
 local showstream = require "showstream"
 local changestatus = require "changestatus"
+local showpost   = require "showpost"
+
 
 -- local createpost = require "createpost"
 -- local updatepost = require "updatepost"
@@ -40,6 +42,8 @@ function M.execute()
         local action = a_cgi_params[1]
         if subs[action] ~= nil then
             subs[action](a_cgi_params)
+        elseif #a_cgi_params == 1 then
+            subs.post(a_cgi_params)
         else
             subs.showerror(a_cgi_params)
         end          

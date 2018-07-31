@@ -10,6 +10,7 @@ local config    = require "config"
 local utils     = require "utils"
 local httputils = require "httputils"
 local user      = require "user"
+local fetch     = require "fetch"
 
 
 -- todo in show_stream, cache page one of stream in memcached if user is not logged in. 
@@ -332,15 +333,7 @@ end
 
 function M.show_deleted_posts()
 
-    local author_name  = user.get_logged_in_author_name()
-    local session_id   = user.get_logged_in_session_id()
-    local rev          = user.get_logged_in_rev()
-
-    local query_string = "?author=" .. author_name .. "&session_id=" .. session_id .. "&rev=" .. rev .. "&deleted=yes"
-
-    local api_url = config.get_value_for("api_url") .. "/posts" .. query_string
-
-    local response_body, status_code, headers_table, status_string = httputils.get_unsecure_web_page(api_url)
+    local response_body, status_code = fetch.api_req("/posts", "&deleted=yes")
 
     local h_json = cjson.decode(response_body)
 

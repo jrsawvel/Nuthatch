@@ -4,7 +4,7 @@ created Jul 23, 2018 - updated Jul 24, 2018
 functions to add:
 
     DONE showerror          
-post               
+    DONE post               
     DONE searchform         
     DONE stream
     DONE tag                
@@ -15,7 +15,7 @@ post
 createpost         
 compose            
     DONE logout             
-delete             
+    DONE delete             
     DONE deleted            
     DONE undelete           
 edit               
