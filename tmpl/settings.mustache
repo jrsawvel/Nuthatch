@@ -1,0 +1,32 @@
+{{> header}}
+
+<main>
+
+<p>
+Updating <strong>{{{name}}}'s</strong> settings.
+</p>
+
+<p>
+<form action="/updatesettings" method="post">
+
+<p>
+old email : <input type="text" id="old_email" name="old_email" maxlength="50" value="{{{old_email}}}" />
+</p>
+
+<p>
+new email : <input type="text" id="new_email" name="new_email" maxlength="50" value="{{{new_email}}}" />
+</p>
+
+<p>
+<label for="blank"> </label>
+<input class="submitbutton" id="submit" type="submit" value="Update" />
+</p> 
+<input type="hidden" name="rev" value="{{{rev}}}" />
+<input type="hidden" name="id"  value="{{{id}}}" />
+
+</form>
+</p>
+
+</main>
+
+{{> footer}}

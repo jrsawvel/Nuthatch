@@ -1,0 +1,58 @@
+{{> header}}
+
+<main>
+
+{{#error_exists}}
+<p>
+<h2>Article Input Error</h2>
+{{{errormessage}}}
+</p>
+{{/error_exists}}
+
+
+{{#previewingpost}} 
+
+<!----------- Article Start ------------> 
+
+<p>
+Previewing post ...
+</p>
+
+<article>
+<section class="article-body">
+<h1>{{{title}}}</h1> 
+{{{html}}}
+</section>
+</article>
+
+<!----------- Article End ------------> 
+
+{{/previewingpost}}
+
+
+<!-- markup -->
+
+<center>
+<div style="margin-top: 20px; font-size: 20px">
+Editing: <a href="/{{{html_file}}}">{{{html_file}}}</a>
+</div>
+<form id="articleform" method="post" action="/updatepost">
+<input type="hidden" name="post_id" value="{{{slug}}}"> 
+<input type="hidden" name="rev"     value="{{{rev}}}"> 
+
+<p>
+<textarea id="textareaboxpost" name="markup" rows="25" cols="80" >{{{markup}}}</textarea>
+<br />
+<input class="submitbutton" type="submit" name="sb" value="Preview">
+ &nbsp; &nbsp;
+ <span class="greylinks"><a href="/editorupdate/{{{post_id}}}"><small>editor</small></a></span>
+ &nbsp; &nbsp;
+<input class="submitbutton" type="submit" name="sb" value="Update">
+</p>
+
+</form>
+</center>
+
+</main>
+
+{{> footer}}

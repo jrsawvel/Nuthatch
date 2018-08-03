@@ -81,8 +81,8 @@ function _check_inputs(t_i, t_a)
         return {new_email = nil, err_msg = "The provided old email address does not match the email address contained in the database."}
     elseif t_i.id ~= t_a._id then
         return {new_email = nil, err_msg = "Invalid user information provided. (A)"}
-    elseif t_i.rev ~= t_a._rev then
-        return {new_email = nil, err_msg = "Invalid user information provided. (B)"}
+--    elseif t_i.rev ~= t_a._rev then
+--        return {new_email = nil, err_msg = "Invalid user information provided. (B) " .. t_i.rev .. " " .. t_a._rev}
     elseif utils.is_valid_email(old_email) == false then
         return {new_email = nil, err_msg = "Invalid syntax for old email address provided."}
     elseif utils.is_valid_email(new_email) == false then

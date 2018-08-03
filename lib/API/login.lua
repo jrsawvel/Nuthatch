@@ -80,9 +80,12 @@ function _get_email_for(author_name)
 
     local t = cjson.decode(response)
 
-    local author_info = t.rows[1].value
-
-    return author_info.email
+    if t.rows == nil or t.rows[1].value == nil then
+        return nil
+    else
+        local author_info = t.rows[1].value
+        return author_info.email
+    end
 
 end
 

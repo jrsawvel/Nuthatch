@@ -29,7 +29,11 @@ end
 function _process_stream(hash, max_posts_to_display)
 
         local stream         = hash.posts
-        local len = #stream
+        local len = 0
+
+        if stream ~= nil then 
+            len = #stream
+        end
 
         local posts = {}
 
@@ -38,7 +42,8 @@ function _process_stream(hash, max_posts_to_display)
         -- if yes, then the html-based tag list string would be another key-value store in the doc.
 
 
-        for i=1, #stream do
+--        for i=1, #stream do
+        for i=1, len do
             local ctr = 0
 
             if stream[i].post_type == "article" then

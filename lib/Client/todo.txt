@@ -12,16 +12,18 @@ functions to add:
     DONE login              
     DONE dologin            
     DONE nopwdlogin         
-createpost         
-compose            
     DONE logout             
     DONE delete             
     DONE deleted            
     DONE undelete           
-edit               
-updatepost         
+    DONE settings           
+    DONE updatesettings     
+    DONE compose            
+    DONE createpost         
+    DONE edit               
+    DONE updatepost         
+
 splitscreen        
 splitscreenedit    
-settings           
-updatesettings     
+
 cacheit            
