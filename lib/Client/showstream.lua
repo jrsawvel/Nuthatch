@@ -13,7 +13,7 @@ local user      = require "user"
 local fetch     = require "fetch"
 
 
--- todo in show_stream, cache page one of stream in memcached if user is not logged in. 
+-- todo in show_stream, cache page one of stream in redis if user is not logged in. 
 
 
 

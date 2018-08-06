@@ -1,5 +1,5 @@
 
-created Jul 23, 2018 - updated Jul 24, 2018
+created Jul 23, 2018 - updated Aug 6, 2018
 
 functions to add:
 
@@ -22,8 +22,8 @@ functions to add:
     DONE createpost         
     DONE edit               
     DONE updatepost         
+    DONE cache pages in redis
 
 splitscreen        
 splitscreenedit    
 
-cacheit            

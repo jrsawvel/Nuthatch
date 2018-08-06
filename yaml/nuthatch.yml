@@ -12,6 +12,8 @@
     debug_mode:                     true
     api_url:                        http://example.com/api/v1
     author_profile:                 profile
+    write_html_to_redis:            true
+    read_html_from_redis:           true
 
     author_name:                    Nick Adams
     mailgun_api_key:                <api-key>

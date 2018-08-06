@@ -10,6 +10,8 @@ local config    = require "config"
 local httputils = require "httputils"
 local utils     = require "utils"
 local user      = require "user"
+local cache     = require "rediscache"
+local getpost   = require "showpost"
 
 
 
@@ -103,6 +105,7 @@ function M.update_post()
             page.set_template_variable("markup", original_markup)
             display.web_page(page.get_output("Previewing updated post " .. h_json.title))
         elseif submit_type == "Update" then
+            cache.cache_page(h_json.post_id, getpost.show_post({h_json.post_id}, "private"))
             display.redirect_to(config.get_value_for("home_page") .. "/" .. post_id)
         else 
             display.report_error("user", "Unable to complete request.", "Invalid submit type: " .. submit_type .. ".")
