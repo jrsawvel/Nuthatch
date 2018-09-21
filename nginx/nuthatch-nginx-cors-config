@@ -73,7 +73,7 @@ server {
 #        if ($http_cookie ~* "nuthatchsessionid=[\w]+") {
 #            set $use_cache 0;
 #        }
-        if ($http_cookie ~* "nuthatchauthorname=JohnR") {
+        if ($http_cookie ~* "nuthatchauthor_name=NutHatch") {
             set $use_cache 0;
         }
         if ($request_uri ~ "^/([\w-]+)") {

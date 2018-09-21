@@ -14,6 +14,7 @@ local config    = require "config"
 local httputils = require "httputils"
 local utils     = require "utils"
 local cache     = require "rediscache"
+local mcache    = require "memcachedcache"
 local getpost   = require "showpost"
 
 
@@ -74,7 +75,9 @@ function M.create_post()
             end
             display.web_page(page.get_output("Create new post"))
         elseif submit_type == "Post" then
-            cache.cache_page(h_json.post_id, getpost.show_post({h_json.post_id}, "private"))
+            local html_to_cache = getpost.show_post({h_json.post_id}, "private")            
+            cache.cache_page(h_json.post_id, html_to_cache)
+            mcache.cache_page(h_json.post_id, html_to_cache) 
             if post_location == "notes_stream" then
                 display.redirect_to(config.get_value_for("home_page"))
             else

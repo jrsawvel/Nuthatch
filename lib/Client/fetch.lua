@@ -14,6 +14,7 @@ function M.api_req(prefix, suffix)
     local fetch_url
     local query_string
 
+
     if user.get_logged_in_flag() == true then
         local author_name  = user.get_logged_in_author_name()
         local session_id   = user.get_logged_in_session_id()

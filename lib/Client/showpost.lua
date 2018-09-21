@@ -14,6 +14,8 @@ local utils     = require "utils"
 local user      = require "user"
 local fetch     = require "fetch"
 local cache     = require "rediscache"
+local mcache    = require "memcachedcache"
+
 
 
 
@@ -24,15 +26,16 @@ function M.show_post(a_params, creation_type)
 
     local value = nil
 
-    if user.get_logged_in_flag() == false and config.get_value_for("read_html_from_redis") == true then
+    if not creation_type then creation_type = "normal" end
+
+    if user.get_logged_in_flag() == false and creation_type == "normal" and config.get_value_for("read_html_from_redis") == true then
         local client = redis.connect('127.0.0.1', 6379)
         value = client:hget(config.get_value_for("domain_name"), post_id)
     end
 
- if value ~= nil then
+  if value ~= nil then
      display.web_page(value) 
- else
-
+  else
     local response_body, status_code = fetch.api_req("/posts/" .. post_id,  "&text=html")
 
     local h_json = cjson.decode(response_body)
@@ -40,7 +43,11 @@ function M.show_post(a_params, creation_type)
     if status_code >= 200 and status_code < 300 then
         local post = h_json.post
         page.set_template_name("post")
-        page.set_template_variable("loggedin", user.get_logged_in_flag())
+        if creation_type == "private" then
+            page.set_template_variable("loggedin", false)
+        else
+            page.set_template_variable("loggedin", user.get_logged_in_flag())
+        end
         page.set_template_variable("html", post.html)
         page.set_template_variable("author", post.author)
         page.set_template_variable("created_at", utils.format_date_time(post.created_at))
@@ -67,10 +74,12 @@ function M.show_post(a_params, creation_type)
        
         local html_output = page.get_output(post.title)
        
-        if user.get_logged_in_flag() == false and config.get_value_for("write_html_to_redis") == true then
-            cache.cache_page(post_id, html_output)
-        elseif creation_type ~= nil and creation_type == "private" then
+        -- if user.get_logged_in_flag() == false and config.get_value_for("write_html_to_redis") == true then
+        if creation_type ~= nil and creation_type == "private" then
             return html_output
+        elseif user.get_logged_in_flag() == false then
+            cache.cache_page(post_id, html_output)
+            mcache.cache_page(post_id, html_output)
         else
             display.web_page(html_output) 
         end

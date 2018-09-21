@@ -14,6 +14,7 @@
     author_profile:                 profile
     write_html_to_redis:            true
     read_html_from_redis:           true
+    memcached_port:                 11211
 
     author_name:                    Nick Adams
     mailgun_api_key:                <api-key>
